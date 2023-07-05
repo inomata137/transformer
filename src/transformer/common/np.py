@@ -1,5 +1,5 @@
 # coding: utf-8
-from ..config.config import gpu_config
+from ..config import gpu_config
 
 if gpu_config():
     import cupy as np

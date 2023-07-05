@@ -1,6 +1,6 @@
 from .np import np
 from .functions import softmax, cross_entropy_error
-from ..config.config import gpu_config
+from ..config import gpu_config
 
 class BaseLayer:
     def __init__(self) -> None:

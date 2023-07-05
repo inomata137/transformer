@@ -1,7 +1,7 @@
 import pickle
 import os
 from .layers import BaseLayer
-from ..config.config import gpu_config
+from ..config import gpu_config
 from .np import np, to_numpy, to_cupy
 
 class BaseModel(BaseLayer):
