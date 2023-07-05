@@ -1,7 +1,7 @@
 import pickle
 import os
 from .layers import BaseLayer
-from .config import GPU
+from ..config.config import gpu_config
 from .np import np, to_numpy, to_cupy
 
 class BaseModel(BaseLayer):
@@ -16,7 +16,7 @@ class BaseModel(BaseLayer):
             file_name = self.__class__.__name__ + '.pkl'
 
         params = [p.astype(np.float16) for p in self.params]
-        if GPU:
+        if gpu_config():
             params = [to_numpy(p) for p in params]
 
         with open(file_name, 'wb') as f:
@@ -36,7 +36,7 @@ class BaseModel(BaseLayer):
             params = pickle.load(f)
 
         params = [p.astype('f') for p in params]
-        if GPU:
+        if gpu_config():
             params = [to_cupy(p) for p in params]
 
         for i, param in enumerate(self.params):

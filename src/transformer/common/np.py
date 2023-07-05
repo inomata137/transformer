@@ -1,7 +1,7 @@
 # coding: utf-8
-from .config import GPU
+from ..config.config import gpu_config
 
-if GPU:
+if gpu_config():
     import cupy as np
     np.cuda.set_allocator(np.cuda.MemoryPool().malloc)
 
