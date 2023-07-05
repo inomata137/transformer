@@ -16,8 +16,8 @@ class BaseLayer:
 
 class MatMul(BaseLayer):
     def __init__(self, shape: tuple[int, int], rn=np.random.randn) -> None:
-        super.__init__()
-        W: np.ndarray = rn(shape) / np.sqrt(shape[0])
+        super().__init__()
+        W: np.ndarray = rn(*shape) / np.sqrt(shape[0])
         self.params.append(W)
         self.grads.append(np.zeros_like(W))
         self.x = None
@@ -42,19 +42,19 @@ class Affine(BaseLayer):
         self.mm = MatMul((d_in, d_out), rn)
         b = rn(1, 1, d_out) * b_scale
         self.params = [
-            b
-            *self.mm.params,
+            b,
+            *self.mm.params
         ]
         self.grads = [
-            np.zeros_like(b)
-            *self.mm.grads,
+            np.zeros_like(b),
+            *self.mm.grads
         ]
     
     def forward(self, x: np.ndarray) -> np.ndarray:
         return self.mm.forward(x) + self.params[0]
 
     def backward(self, dout: np.ndarray):
-        self.grads[1, ...] = dout.sum(axis=(0, 1))
+        self.grads[0][...] = dout.sum(axis=(0, 1))
         return self.mm.backward(dout)
 
 
@@ -76,11 +76,12 @@ class SimpleMatMul(BaseLayer):
 
 class Softmax(BaseLayer):
     def __init__(self) -> None:
-        super.__init__()
+        super().__init__()
         self.out = None
     
     def forward(self, x: np.ndarray) -> np.ndarray:
-        return softmax(x)
+        self.out = softmax(x)
+        return self.out
     
     def backward(self, dout: np.ndarray) -> np.ndarray:
         dx = self.out * dout
@@ -118,7 +119,7 @@ class Dropout(BaseLayer):
     http://arxiv.org/abs/1207.0580
     '''
     def __init__(self, dropout_ratio=0.1, seed=None):
-        super.__init__()
+        super().__init__()
         self.dropout_ratio = dropout_ratio
         self.mask = None
         self.rng = np.random.default_rng(seed)
@@ -136,7 +137,7 @@ class Dropout(BaseLayer):
 
 class Embedding(BaseLayer):
     def __init__(self, vocab_size: int, d_m: int, rn=np.random.randn):
-        super.__init__()
+        super().__init__()
         W: np.ndarray = rn(vocab_size, d_m)
         self.params.append(W)
         self.grads.append(np.zeros_like(W))
@@ -160,7 +161,7 @@ class Embedding(BaseLayer):
 
 class Relu(BaseLayer):
     def __init__(self) -> None:
-        super.__init__()
+        super().__init__()
         self.cache = None
     
     def forward(self, x: np.ndarray):

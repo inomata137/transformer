@@ -1,15 +1,15 @@
-from ffn import PositionWiseFfn
-from residual_connection import ResidualConnection
-from attention import MultiHeadSelfAttention
-from common.np import np
-from common.layers import BaseLayer
+from .ffn import PositionWiseFfn
+from .residual_connection import ResidualConnection
+from .attention import MultiHeadSelfAttention
+from .common.np import np
+from .common.layers import BaseLayer
 
 rn = np.random.randn
 
 class Encoder(BaseLayer):
     def __init__(self, d_m: int, h: int, d_ff: int, repeat_num: int,
                  p_drop: float, rn=rn):
-        super.__init__()
+        super().__init__()
         assert d_m % h == 0
         self.layers = [[
             ResidualConnection(MultiHeadSelfAttention(d_m, h, False, rn), p_drop, False),

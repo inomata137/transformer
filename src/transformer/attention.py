@@ -1,5 +1,5 @@
-from common.np import np
-from common.layers import BaseLayer, MatMul, SimpleMatMul, Softmax
+from .common.np import np
+from .common.layers import BaseLayer, MatMul, SimpleMatMul, Softmax
 
 class AttentionHead(BaseLayer):
     def __init__(self, d_m: int, d_k: int,
@@ -60,11 +60,11 @@ class AttentionHead(BaseLayer):
 
 class MultiHeadAttention(BaseLayer):
     def __init__(self, d_m: int, h: int, mask: bool, rn=np.random.randn):
-        super.__init__()
+        super().__init__()
         assert d_m % h == 0, 'd_m/h should be an integer'
         d_v = d_k = d_m // h
         self.heads = [AttentionHead(d_m, d_k, mask, rn) for _ in range(h)]
-        self.wo = MatMul((d_m, d_m), 1 / np.sqrt(d_m))
+        self.wo = MatMul((d_m, d_m), rn)
         for head in self.heads:
             self.params += head.params
             self.grads += head.grads
@@ -113,7 +113,7 @@ class MultiHeadAttention(BaseLayer):
 
 class MultiHeadSelfAttention(BaseLayer):
     def __init__(self, d_m: int, h: int, mask: bool, rn=np.random.randn):
-        super.__init__()
+        super().__init__()
         self.mha = MultiHeadAttention(d_m, h, mask, rn)
         self.params += self.mha.params
         self.grads += self.mha.grads

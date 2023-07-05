@@ -1,4 +1,4 @@
-from common.np import np
+from .common.np import np
 
 def positional_encoding(x: np.ndarray, T=1e4):
     b, r, c = x.shape

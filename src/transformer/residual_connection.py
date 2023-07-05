@@ -1,9 +1,9 @@
-from common.np import np
-from common.layers import BaseLayer, Dropout
+from .common.np import np
+from .common.layers import BaseLayer, Dropout
 
 class LayerNorm(BaseLayer):
     def __init__(self, positionwise=False, eps=1e-10):
-        super.__init__()
+        super().__init__()
         self.mu = None
         self.sigma = None
         self.x = None
@@ -58,7 +58,7 @@ class LayerNorm(BaseLayer):
 
 class ResidualConnection(BaseLayer):
     def __init__(self, layer: BaseLayer, p_drop: float, norm_positionwise: bool):
-        super.__init__()
+        super().__init__()
         self.layer = layer
         self.layer_norm = LayerNorm(norm_positionwise)
         self.dropout = Dropout(p_drop)

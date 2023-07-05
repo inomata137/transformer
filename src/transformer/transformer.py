@@ -1,9 +1,9 @@
-from encoder import Encoder
-from decoder import Decoder
-from positional_encoding import positional_encoding
-from common.np import np
-from common.layers import SoftmaxWithLoss, MatMul, Embedding, Dropout
-from common.base_model import BaseModel
+from .encoder import Encoder
+from .decoder import Decoder
+from .positional_encoding import positional_encoding
+from .common.np import np
+from .common.layers import SoftmaxWithLoss, MatMul, Embedding, Dropout
+from .common.base_model import BaseModel
 
 rn = np.random.randn
 
@@ -11,7 +11,7 @@ class Transformer(BaseModel):
     def __init__(self, d_m: int, h: int, d_ff: int, vocab_size: int,
                  enc_rep: int, dec_rep: int, p_drop_embed: float,
                  p_drop_sublayer: float, pe_interval: float, rn=rn):
-        super.__init__()
+        super().__init__()
         self.embed = Embedding(vocab_size, d_m, rn)
         self.dropout_enc = Dropout(p_drop_embed)
         self.dropout_dec = Dropout(p_drop_embed)

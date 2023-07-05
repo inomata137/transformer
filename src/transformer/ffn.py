@@ -1,5 +1,5 @@
-from common.np import np
-from common.layers import BaseLayer, Affine, Relu
+from .common.np import np
+from .common.layers import BaseLayer, Affine, Relu
 
 class PositionWiseFfn(BaseLayer):
     def __init__(self, d_m: int, d_ff: int, b1_scale=1.,
