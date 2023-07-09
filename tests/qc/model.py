@@ -30,7 +30,6 @@ class CircuitSimulator(BaseModel):
         p_e: ndarray(size=(m, m, ...)) represents P^(e)(a)
         '''
         assert p_e.shape == tuple(self.m for _ in range(len(p_e.shape)))
-        rng = np.random.default_rng(0)
         x = np.zeros((batch, n), dtype=int)
         x[:, 0] = self.m
         for qubit_idx in range(n):
@@ -40,7 +39,7 @@ class CircuitSimulator(BaseModel):
                 y = layer.forward(y)
             y = self.softmax.forward(y)
             for batch_idx in range(batch):
-                x[batch_idx, (qubit_idx + 1) % n, ...] = rng.choice(self.m, p=y[batch_idx, qubit_idx])
+                x[batch_idx, (qubit_idx + 1) % n, ...] = np.random.choice(self.m, 1, False, y[batch_idx, qubit_idx])
 
         self.a = a = np.roll(x, shift=-1, axis=-1)
         '''

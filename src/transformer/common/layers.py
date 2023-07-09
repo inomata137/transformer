@@ -2,9 +2,6 @@ from .np import np
 from .functions import softmax, cross_entropy_error
 from ..config import gpu_config
 
-if gpu_config():
-    import cupyx
-
 class BaseLayer:
     def __init__(self) -> None:
         self.params: list[np.ndarray] = []
@@ -155,10 +152,7 @@ class Embedding(BaseLayer):
     def backward(self, dout: np.ndarray):
         dW, = self.grads
         dW[...] = 0
-        if gpu_config():
-            cupyx.scatter_add(dW, self.idx, dout)
-        else:
-            np.add.at(dW, self.idx, dout)
+        np.add.at(dW, self.idx, dout)
         return None
 
 
