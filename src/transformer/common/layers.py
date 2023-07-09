@@ -2,6 +2,9 @@ from .np import np
 from .functions import softmax, cross_entropy_error
 from ..config import gpu_config
 
+if gpu_config():
+    import cupyx
+
 class BaseLayer:
     def __init__(self) -> None:
         self.params: list[np.ndarray] = []
