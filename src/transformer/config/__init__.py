@@ -1,6 +1,6 @@
 _gpu = False
 
-def gpu_config(gpu: bool | None = None):
+def gpu_config(gpu: bool = None):
     '''configure whether to use cupy
     gpu: Set True to use cupy, False to numpy.
 

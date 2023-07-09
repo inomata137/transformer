@@ -57,7 +57,10 @@ class CircuitSimulator(BaseModel):
             p *= np.take_along_axis(y[:, pos], a[:, pos, None], axis=1)[:, 0]
         f = np.empty(batch)
         for batch_idx in range(batch):
-            f[batch_idx] = p_e[*a[batch_idx]]
+            tmp = p_e
+            for pos in range(n):
+                tmp = p[a[batch_idx, pos]]
+            f[batch_idx] = tmp
         f /= p
         self.f = f
         loss = np.dot(f, np.log(f)) / batch

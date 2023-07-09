@@ -1,8 +1,11 @@
+from transformer.config import gpu_config
+gpu_config(False)
+
 m = 4
 '''number of POVM elements'''
 Nq = 2
 '''number of qubits'''
-Ns = 128
+Ns = 4096
 '''number of samples'''
 seed = 0
 '''random seed for parameter initialization'''
