@@ -1,5 +1,6 @@
 from .common.np import np
 from .common.layers import BaseLayer, Dropout
+from typing import Union
 
 class LayerNorm(BaseLayer):
     def __init__(self, positionwise=False, eps=1e-10):
@@ -73,7 +74,7 @@ class ResidualConnection(BaseLayer):
         out = self.layer_norm.forward(s)
         return out
 
-    def backward(self, dout: np.ndarray) -> tuple[np.ndarray, np.ndarray] | np.ndarray:
+    def backward(self, dout: np.ndarray) -> Union[tuple[np.ndarray, np.ndarray], np.ndarray]:
         dx1 = self.layer_norm.backward(dout)
         dx2 = self.dropout.backward(dx1)
         dx2 = self.layer.backward(dx2)
