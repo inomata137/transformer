@@ -25,6 +25,11 @@ for epoch in range(max_epoch):
     print(f'epoch {epoch + 1} | loss {loss}')
 
 plt.grid()
+plt.xlabel('epoch')
+plt.ylabel('loss')
 plt.yscale('log')
 plt.plot(loss_list)
 plt.show()
+
+print(loss_list)
+model.save_params()
