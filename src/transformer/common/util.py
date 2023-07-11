@@ -13,12 +13,12 @@ def clip_grads(grads, max_norm):
             grad *= rate
 
 
-def ids_to_str(ids: np.ndarray[int], dic: dict[int, str]):
+def ids_to_str(ids: np.ndarray, dic: dict[int, str]):
     return ''.join([dic[c] for c in ids])
 
 
-def eval_seq2seq(model, questions: np.ndarray[int],
-                 answers: np.ndarray[int], id_to_char: dict[int, str],
+def eval_seq2seq(model, questions: np.ndarray,
+                 answers: np.ndarray, id_to_char: dict[int, str],
                  verbose=10):
     assert questions.shape[0] == answers.shape[0]
     # 頭の区切り文字
