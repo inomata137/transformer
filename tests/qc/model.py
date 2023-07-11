@@ -1,5 +1,5 @@
 from transformer.common.np import np
-from transformer.common import BaseLayer, MatMul, Softmax, Embedding, BaseModel
+from transformer.common import BaseLayer, MatMul, Softmax, Embedding, BaseModel, RandomChoiceGenerator
 from transformer.attention import MultiHeadSelfAttention
 from transformer.ffn import PositionWiseFfn
 from transformer.positional_encoding import positional_encoding
@@ -22,6 +22,7 @@ class CircuitSimulator(BaseModel):
             self.grads += layer.grads
         
         self.m = m
+        self.rcg = RandomChoiceGenerator()
     
     def forward(self, batch: int, n: int, p_e: np.ndarray):
         '''
@@ -39,7 +40,7 @@ class CircuitSimulator(BaseModel):
                 y = layer.forward(y)
             y = self.softmax.forward(y)
             for batch_idx in range(batch):
-                x[batch_idx, (qubit_idx + 1) % n, ...] = np.random.choice(self.m, 1, True, y[batch_idx, qubit_idx])
+                x[batch_idx, (qubit_idx + 1) % n] = self.rcg.choice(y[batch_idx, qubit_idx])
 
         self.a = a = np.roll(x, shift=-1, axis=-1)
         '''
