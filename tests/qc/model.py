@@ -39,8 +39,10 @@ class CircuitSimulator(BaseModel):
             for layer in self.layers:
                 y = layer.forward(y)
             y = self.softmax.forward(y)
+            results = []
             for batch_idx in range(batch):
-                x[batch_idx, (qubit_idx + 1) % n] = self.rcg.choice(y[batch_idx, qubit_idx])
+                results.append(self.rcg.choice(y[batch_idx, qubit_idx]))
+            x[:, (qubit_idx + 1) % n] = np.array(results)
 
         self.a = a = np.roll(x, shift=-1, axis=-1)
         '''
