@@ -9,4 +9,5 @@ def softmax(x: np.ndarray):
 
 def cross_entropy_error(y: np.ndarray, t: np.ndarray, eps=1e-9) -> float:
     batch_size = y.shape[0]
-    return -np.sum(np.log(y + eps) * t) / batch_size
+    return -np.dot(np.log(y + eps), t) / batch_size
+

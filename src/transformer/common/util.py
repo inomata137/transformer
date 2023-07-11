@@ -14,7 +14,7 @@ def clip_grads(grads, max_norm):
 
 
 def ids_to_str(ids: np.ndarray, dic: dict[int, str]):
-    return ''.join([dic[c] for c in ids])
+    return ''.join([dic[int(c)] for c in ids])
 
 
 def eval_seq2seq(model, questions: np.ndarray,
