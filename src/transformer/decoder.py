@@ -7,13 +7,13 @@ from .common.layers import BaseLayer
 rn = np.random.randn
 
 class Decoder(BaseLayer):
-    def __init__(self, d_m, h, d_ff, repeat_num: int, p_drop: float, rn=rn) -> None:
+    def __init__(self, d_m, h, d_ff, repeat_num: int, p_drop: float, norm_positionwise=False, rn=rn) -> None:
         assert d_m % h == 0
         super().__init__()
         self.layers = [[
-            ResidualConnection(MultiHeadSelfAttention(d_m, h, True, rn), p_drop, False),
-            ResidualConnection(MultiHeadCrossAttention(d_m, h, rn), p_drop, False),
-            ResidualConnection(PositionWiseFfn(d_m, d_ff, 0.1, 0.1, rn), p_drop, False)
+            ResidualConnection(MultiHeadSelfAttention(d_m, h, True, rn), p_drop, norm_positionwise),
+            ResidualConnection(MultiHeadCrossAttention(d_m, h, rn), p_drop, norm_positionwise),
+            ResidualConnection(PositionWiseFfn(d_m, d_ff, 0.1, 0.1, rn), p_drop, norm_positionwise)
         ] for _ in range(repeat_num)]
         for layer in self.layers:
             for sublayer in layer:

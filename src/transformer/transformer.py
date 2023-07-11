@@ -10,13 +10,14 @@ rn = np.random.randn
 class Transformer(BaseModel):
     def __init__(self, d_m: int, h: int, d_ff: int, vocab_size: int,
                  enc_rep: int, dec_rep: int, p_drop_embed: float,
-                 p_drop_sublayer: float, pe_interval: float, rn=rn):
+                 p_drop_sublayer: float, pe_interval: float,
+                 norm_positionwise=False, rn=rn):
         super().__init__()
         self.embed = Embedding(vocab_size, d_m, rn)
         self.dropout_enc = Dropout(p_drop_embed)
         self.dropout_dec = Dropout(p_drop_embed)
-        self.enc = Encoder(d_m, h, d_ff, enc_rep, p_drop_sublayer, rn)
-        self.dec = Decoder(d_m, h, d_ff, dec_rep, p_drop_sublayer, rn)
+        self.enc = Encoder(d_m, h, d_ff, enc_rep, p_drop_sublayer, norm_positionwise, rn)
+        self.dec = Decoder(d_m, h, d_ff, dec_rep, p_drop_sublayer, norm_positionwise, rn)
         self.matmul = MatMul((d_m, vocab_size), rn)
         self.softmax = SoftmaxWithLoss(e_ls=0.01)
 
@@ -71,7 +72,7 @@ class Transformer(BaseModel):
     
     def generate(self, x_enc: np.ndarray, start_id: int, length: int):
         '''
-        x_enc: 1 x n
+        x_enc: N x n array[int]
         '''
         N, n = x_enc.shape
         x_dec = np.full((N, length), start_id, dtype=int)

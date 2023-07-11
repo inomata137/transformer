@@ -8,12 +8,12 @@ rn = np.random.randn
 
 class Encoder(BaseLayer):
     def __init__(self, d_m: int, h: int, d_ff: int, repeat_num: int,
-                 p_drop: float, rn=rn):
+                 p_drop: float, norm_positionwise=False, rn=rn):
         super().__init__()
         assert d_m % h == 0
         self.layers = [[
-            ResidualConnection(MultiHeadSelfAttention(d_m, h, False, rn), p_drop, False),
-            ResidualConnection(PositionWiseFfn(d_m, d_ff, 0.1, 0.1, rn), p_drop, False)
+            ResidualConnection(MultiHeadSelfAttention(d_m, h, False, rn), p_drop, norm_positionwise),
+            ResidualConnection(PositionWiseFfn(d_m, d_ff, 0.1, 0.1, rn), p_drop, norm_positionwise)
         ] for _ in range(repeat_num)]
         for layer in self.layers:
             for sublayer in layer:
