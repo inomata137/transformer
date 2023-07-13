@@ -35,4 +35,6 @@ plt.plot(loss_list)
 plt.show()
 
 print(loss_list)
-model.save_params()
+if input('save?(yes/no): ') == 'yes':
+    filename = input('filename: ') or None
+    model.save_params(filename)
