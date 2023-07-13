@@ -31,7 +31,7 @@ plt.grid()
 plt.xlabel('epoch')
 plt.ylabel('loss')
 plt.yscale('log')
-plt.plot(loss_list)
+plt.scatter(range(max_epoch), loss_list)
 plt.show()
 
 print(loss_list)
