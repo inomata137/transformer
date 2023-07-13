@@ -16,6 +16,10 @@ opt = Adam(lr=lr)
 p_e = np.array([[1/6], [1/3], [1/6], [1/3]]) * np.array([[1/3, 1/6, 1/6, 1/3]])
 print(p_e)
 
+print('-' * 10)
+print(f'{Nq=}\n{Ns=}\n{seed=}\n{d_m=}\n{h=}\n{d_ff=}\n{lr=}\n{max_epoch=}')
+print('-' * 10)
+
 loss_list: list[float] = []
 t1 = time.time()
 for epoch in range(max_epoch):
