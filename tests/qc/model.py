@@ -22,7 +22,8 @@ class CircuitSimulator(BaseModel):
             self.grads += layer.grads
         
         self.m = m
-        self.rcg = RandomChoiceGenerator()
+        self.rng = np.random.default_rng()
+        # self.rcg = RandomChoiceGenerator()
     
     def forward(self, batch: int, n: int, p_e: np.ndarray):
         '''
@@ -39,9 +40,14 @@ class CircuitSimulator(BaseModel):
             for layer in self.layers:
                 y = layer.forward(y)
             y = self.softmax.forward(y)
-            results = []
-            for batch_idx in range(batch):
-                results.append(self.rcg.choice(y[batch_idx, qubit_idx]))
+            # results = []
+            # for batch_idx in range(batch):
+            #     results.append(self.rcg.choice(y[batch_idx, qubit_idx]))
+            rns = self.rng.random(batch)
+            b1 = rns >= y[:, qubit_idx, 0]
+            b2 = rns >= y[:, qubit_idx, 0] + y[:, qubit_idx, 1]
+            b3 = rns >= 1 - y[:, qubit_idx, 3]
+            results = b1.astype(int) + b2.astype(int) + b3.astype(int)
             x[:, (qubit_idx + 1) % n] = np.array(results)
 
         self.a = a = np.roll(x, shift=-1, axis=-1)
