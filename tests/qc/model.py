@@ -61,7 +61,7 @@ class CircuitSimulator(BaseModel):
         for batch_idx in range(batch):
             tmp = p_e
             for pos in range(n):
-                tmp = p[a[batch_idx, pos]]
+                tmp = tmp[a[batch_idx, pos]]
             f[batch_idx] = tmp
         f /= p
         self.f = f
