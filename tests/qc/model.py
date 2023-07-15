@@ -71,8 +71,10 @@ class CircuitSimulator(BaseModel):
             f[batch_idx] = tmp
         f /= p
         self.f = f
-        loss = (f * np.log(f)).mean().item()
-        return loss
+        kl_div = (f * np.log(f)).mean().item()
+
+        l1_norm = np.abs(f - 1).mean().item()
+        return kl_div, l1_norm
 
     def backward(self, dout=1.):
         a = self.a

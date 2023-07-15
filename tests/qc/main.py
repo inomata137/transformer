@@ -20,25 +20,30 @@ print('-' * 10)
 print(f'{Nq=}\n{Ns=}\n{seed=}\n{d_m=}\n{h=}\n{d_ff=}\n{lr=}\n{max_epoch=}')
 print('-' * 10)
 
-loss_list: list[float] = []
+kl_div_list: list[float] = []
+l1_norm_list: list[float] = []
 t1 = time.time()
 for epoch in range(max_epoch):
     t2 = time.time()
-    loss = model.forward(batch=Ns, n=Nq, p_e=p_e)
-    loss_list.append(loss)
+    kl_div, l1_norm = model.forward(batch=Ns, n=Nq, p_e=p_e)
+    kl_div_list.append(kl_div)
+    l1_norm_list.append(l1_norm)
     model.backward()
     opt.update(model.params, model.grads)
     t3 = time.time()
-    print(f'epoch {epoch + 1: 3} | loss {loss:6.4f} | {t3 - t2:5.2f} [s] (total {round(t3 - t1)} [s])')
+    print(f'epoch {epoch + 1: >3} | KL div {kl_div: > 7.5f} | L1 norm {l1_norm:7.5f} | {t3 - t2:4.1f} [s] (total {round(t3 - t1)} [s])')
 
 plt.grid()
 plt.xlabel('epoch')
 plt.ylabel('loss')
 plt.yscale('log')
-plt.scatter(range(max_epoch), loss_list)
+plt.scatter(range(max_epoch), kl_div_list, label='KL div', s=8)
+plt.scatter(range(max_epoch), l1_norm_list, label='L1 norm', s=8)
+plt.legend()
 plt.show()
 
-print(loss_list)
+print(kl_div_list)
+print(l1_norm_list)
 if input('save?(yes/no): ') == 'yes':
     filename = input('filename: ') or None
     model.save_params(filename)
