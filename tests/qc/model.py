@@ -20,11 +20,11 @@ class CircuitSimulator(BaseModel):
         for layer in self.layers:
             self.params += layer.params
             self.grads += layer.grads
-        
+
         self.m = m
         self.rng = np.random.default_rng()
         # self.rcg = RandomChoiceGenerator()
-    
+
     def forward(self, batch: int, n: int, p_e: np.ndarray):
         '''
         batch: number of samples
@@ -74,7 +74,25 @@ class CircuitSimulator(BaseModel):
         kl_div = (f * np.log(f)).mean().item()
 
         l1_norm = np.abs(f - 1).mean().item()
-        return kl_div, l1_norm
+
+        # calculate accurate KL div for 2-qubit
+        errs = np.full((self.m, self.m), np.inf)
+        for batch_idx in range(batch):
+            a1, a2 = a[batch_idx]
+            assert type(a1) == np.int64
+            assert type(a2) == np.int64
+            assert a1 >= 0 and a1 <= 3
+            assert a2 >= 0 and a2 <= 3
+            if errs[a1, a2] == np.inf:
+                p_i = p_e[a1, a2]
+                p_theta = p[batch_idx]
+                errs[a1, a2] = p_i * np.log(p_i / p_theta)
+                if np.all(errs != np.inf):
+                    break
+        kl_div_accurate = errs.sum().item()
+        if kl_div_accurate == np.inf:
+            print('KL div is infinity')
+        return kl_div, l1_norm, kl_div_accurate
 
     def backward(self, dout=1.):
         a = self.a
@@ -83,10 +101,9 @@ class CircuitSimulator(BaseModel):
         batch, n = a.shape
 
         t = np.zeros((batch * n, self.m))
-        for i in range(batch * n):
-            t[i, a.flatten()[i]] = 1.
+        t[np.arange(batch * n), a.flatten()] = 1.
         t = t.reshape((batch, n, self.m))
-        
+
         dout = (y - t) * f.reshape((f.size, 1, 1)) / batch
         for layer in reversed(self.layers):
             dout = layer.backward(dout)
