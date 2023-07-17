@@ -40,9 +40,6 @@ class CircuitSimulator(BaseModel):
             for layer in self.layers:
                 y = layer.forward(y)
             y = self.softmax.forward(y)
-            # results = []
-            # for batch_idx in range(batch):
-            #     results.append(self.rcg.choice(y[batch_idx, qubit_idx]))
             rns = self.rng.random(batch)
             b1 = rns >= y[:, qubit_idx, 0]
             b2 = rns >= y[:, qubit_idx, 0] + y[:, qubit_idx, 1]
@@ -63,26 +60,18 @@ class CircuitSimulator(BaseModel):
         p = np.ones(batch)
         for pos in range(n):
             p *= np.take_along_axis(y[:, pos], a[:, pos, None], axis=1)[:, 0]
-        f = np.empty(batch)
-        for batch_idx in range(batch):
-            tmp = p_e
-            for pos in range(n):
-                tmp = tmp[a[batch_idx, pos]]
-            f[batch_idx] = tmp
+        f = p_e[tuple(qubit for qubit in a.T)]
         f /= p
         self.f = f
-        kl_div = (f * np.log(f)).mean().item()
+
+        # kl_div = (f * np.log(f)).mean().item()
 
         l1_norm = np.abs(f - 1).mean().item()
 
-        # calculate accurate KL div for 2-qubit
+        # accurate KL div for 2-qubit
         errs = np.full((self.m, self.m), np.inf)
         for batch_idx in range(batch):
             a1, a2 = a[batch_idx]
-            assert type(a1) == np.int64
-            assert type(a2) == np.int64
-            assert a1 >= 0 and a1 <= 3
-            assert a2 >= 0 and a2 <= 3
             if errs[a1, a2] == np.inf:
                 p_i = p_e[a1, a2]
                 p_theta = p[batch_idx]
@@ -92,7 +81,7 @@ class CircuitSimulator(BaseModel):
         kl_div_accurate = errs.sum().item()
         if kl_div_accurate == np.inf:
             print('KL div is infinity')
-        return kl_div, l1_norm, kl_div_accurate
+        return kl_div_accurate, l1_norm
 
     def backward(self, dout=1.):
         a = self.a

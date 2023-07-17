@@ -25,13 +25,13 @@ l1_norm_list: list[float] = []
 t1 = time.time()
 for epoch in range(max_epoch):
     t2 = time.time()
-    kl_div, l1_norm, kl_div_acc = model.forward(batch=Ns, n=Nq, p_e=p_e)
-    kl_div_list.append(kl_div_acc)
+    kl_div, l1_norm = model.forward(batch=Ns, n=Nq, p_e=p_e)
+    kl_div_list.append(kl_div)
     l1_norm_list.append(l1_norm)
     model.backward()
     opt.update(model.params, model.grads)
     t3 = time.time()
-    print(f'epoch {epoch + 1: >3} | KL div {kl_div_acc: > 7.5f} | L1 norm {l1_norm:7.5f} | {t3 - t2:4.1f} [s] (total {round(t3 - t1)} [s])')
+    print(f'epoch {epoch + 1: >3} | KL div {kl_div: > 7.5f} | L1 norm {l1_norm:7.5f} | {t3 - t2:4.1f} [s] (total {round(t3 - t1)} [s])')
 
 plt.grid()
 plt.title(f'{Ns=}')
