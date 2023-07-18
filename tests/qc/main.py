@@ -22,12 +22,14 @@ print('-' * 10)
 
 kl_div_list: list[float] = []
 l1_norm_list: list[float] = []
+classical_fidelity_list: list[float] = []
 t1 = time.time()
 for epoch in range(max_epoch):
     t2 = time.time()
-    kl_div, l1_norm = model.forward(batch=Ns, n=Nq, p_e=p_e)
+    kl_div, l1_norm, classical_fidelity = model.forward(batch=Ns, n=Nq, p_e=p_e)
     kl_div_list.append(kl_div)
     l1_norm_list.append(l1_norm)
+    classical_fidelity_list.append(1 - classical_fidelity)
     model.backward()
     opt.update(model.params, model.grads)
     t3 = time.time()
@@ -40,6 +42,7 @@ plt.ylabel('loss')
 plt.yscale('log')
 plt.scatter(range(max_epoch), kl_div_list, label='KL div', s=8)
 plt.scatter(range(max_epoch), l1_norm_list, label='L1 norm', s=8)
+plt.scatter(range(max_epoch), classical_fidelity_list, label='1 - Fc', s=8)
 plt.legend()
 plt.show()
 

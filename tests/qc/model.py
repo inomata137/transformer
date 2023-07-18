@@ -76,12 +76,26 @@ class CircuitSimulator(BaseModel):
                 p_i = p_e[a1, a2]
                 p_theta = p[batch_idx]
                 errs[a1, a2] = p_i * np.log(p_i / p_theta)
-                if np.all(errs != np.inf):
+                if (errs != np.inf).all():
                     break
         kl_div_accurate = errs.sum().item()
         if kl_div_accurate == np.inf:
             print('KL div is infinity')
-        return kl_div_accurate, l1_norm
+
+        # classical fidelity for 2-qubit
+        errs = np.full((self.m, self.m), np.inf)
+        for batch_idx in range(batch):
+            a1, a2 = a[batch_idx]
+            if errs[a1, a2] == np.inf:
+                p_i = p_e[a1, a2]
+                p_theta = p[batch_idx]
+                errs[a1, a2] = np.sqrt(p_i * p_theta)
+                if (errs != np.inf).all():
+                    break
+        classical_fidelity = errs.sum().item()
+        if classical_fidelity == np.inf:
+            print('F_c is infinity')
+        return kl_div_accurate, l1_norm, classical_fidelity
 
     def backward(self, dout=1.):
         a = self.a
