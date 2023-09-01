@@ -9,7 +9,7 @@ class BaseLayer:
 
     def forward(self, *args, **kwargs):
         raise NotImplementedError
-    
+
     def backward(self, *args, **kwargs):
         raise NotImplementedError
 
@@ -24,14 +24,14 @@ class MatMul(BaseLayer):
 
     def forward(self, x: np.ndarray):
         W, = self.params
-        out: np.ndarray = np.matmul(x, W)
+        out = x @ W
         self.x = x
         return out
-    
+
     def backward(self, dout: np.ndarray):
         W, = self.params
-        dx: np.ndarray = np.matmul(dout, W.T)
-        dW = np.sum(np.matmul(self.x.swapaxes(-2, -1), dout), axis=0)
+        dx = dout @ W.T
+        dW = np.sum(self.x.swapaxes(-2, -1) @ dout, axis=0)
         self.grads[0][...] = dW
         return dx
 
@@ -49,7 +49,7 @@ class Affine(BaseLayer):
             np.zeros_like(b),
             *self.mm.grads
         ]
-    
+
     def forward(self, x: np.ndarray) -> np.ndarray:
         return self.mm.forward(x) + self.params[0]
 
@@ -63,14 +63,14 @@ class SimpleMatMul(BaseLayer):
         super().__init__()
         self.a = None
         self.b = None
-    
+
     def forward(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
         self.a, self.b = a, b
-        return np.matmul(a, b)
+        return a @ b
 
     def backward(self, dout: np.ndarray):
-        da: np.ndarray = np.matmul(dout, self.b.swapaxes(-2, -1))
-        db: np.ndarray = np.matmul(self.a.swapaxes(-2, -1), dout)
+        da: np.ndarray = dout @ self.b.swapaxes(-2, -1)
+        db: np.ndarray = self.a.swapaxes(-2, -1) @ dout
         return da, db
 
 
@@ -78,11 +78,11 @@ class Softmax(BaseLayer):
     def __init__(self) -> None:
         super().__init__()
         self.out = None
-    
+
     def forward(self, x: np.ndarray) -> np.ndarray:
         self.out = softmax(x)
         return self.out
-    
+
     def backward(self, dout: np.ndarray) -> np.ndarray:
         dx = self.out * dout
         sumdx = np.sum(dx, axis=-1, keepdims=True)
@@ -96,7 +96,7 @@ class SoftmaxWithLoss(BaseLayer):
         self.y = None
         self.t = None
         self.e_ls = e_ls
-    
+
     def forward(self, x: np.ndarray, t: np.ndarray):
         '''
         t: one-hot, same shape as x
@@ -160,11 +160,11 @@ class Relu(BaseLayer):
     def __init__(self) -> None:
         super().__init__()
         self.cache = None
-    
+
     def forward(self, x: np.ndarray):
         r = np.maximum(x, 0)
         self.cache = np.heaviside(x, 0.)
         return r
-    
+
     def backward(self, dx: np.ndarray) -> np.ndarray:
         return self.cache * dx
