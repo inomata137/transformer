@@ -3,59 +3,33 @@ from .common.layers import BaseLayer, Dropout
 from typing import Union
 
 class LayerNorm(BaseLayer):
-    def __init__(self, positionwise=False, eps=1e-10):
+    def __init__(self, positionwise=False):
         super().__init__()
-        self.mu = None
         self.sigma = None
-        self.x = None
+        self.y = None
         self.pw = positionwise
-        self.eps = eps
 
     def forward(self, x: np.ndarray):
-        '''x: N x n x d_m tensor'''
         N, n, d_m = x.shape
-        if self.pw:
-            x = x.reshape((N * n, 1, d_m))
-            norm = d_m
-        else:
-            norm = n * d_m
-        mu: np.ndarray = np.sum(x, axis=(1, 2), keepdims=True) / norm
-        # mu: M x 1 x 1, M = N * n if pw else N
-        sqsum: np.ndarray = np.sum((x - mu) ** 2 / norm, axis=(1, 2), keepdims=True)
-        # sqsum: M x 1 x 1
-        sigma = np.sqrt(sqsum) + self.eps
-        # sigma: M x 1 x 1
-        self.mu = mu
+        if not self.pw:
+            x = x.reshape((N, n * d_m))
+        mu = x.mean(axis=-1, keepdims=True)
+        sigma = x.std(axis=-1, keepdims=True)
+        self.y = (x - mu) / sigma
         self.sigma = sigma
-        self.x = x
-        out = (x - mu) / sigma
-        if self.pw:
-            out = out.reshape((N, n, d_m))
-        return out
+        return self.y.reshape((N, n, d_m))
 
     def backward(self, dout: np.ndarray):
-        mu = self.mu
-        # mu: M x 1 x 1
-        sigma = self.sigma
-        # sigma: M x 1 x 1
-        x = self.x
-        # x: M x m x d_m, m = 1 if pw else n
-        shape = dout.shape
-        d_m = shape[-1]
-        if self.pw:
-            N, n = shape[0] * shape[1], 1
-            dout = dout.reshape((N, n, d_m))
-        else:
-            N, n = shape[:2]
-        norm = n * d_m
-        j1 = (np.identity(norm) * norm - 1) / (norm * sigma)
-        j2 = np.matmul(
-            x.reshape((N, norm, 1)) - mu,
-            x.reshape((N, 1, norm)) - mu
-        ) / (norm * sigma**3)
-        j = j1 - j2
-        dx: np.ndarray = np.matmul(dout.reshape((N, 1, norm)), j)
-        return dx.reshape(shape)
+        '''https://zenn.dev/taro137/articles/2c639b39a32166'''
+        N, n, d_m = dout.shape
+        if not self.pw:
+            dout = dout.reshape((N, n * d_m))
+        H = dout.shape[-1]
+        a = dout.sum(axis=-1, keepdims=True)
+        b = np.einsum('...i,...i->...', self.y, dout)[..., None]
+        dx = (dout - (a + b * self.y) / H) / self.sigma
+        return dx.reshape((N, n, d_m))
+
 
 class ResidualConnection(BaseLayer):
     def __init__(self, layer: BaseLayer, p_drop: float, norm_positionwise: bool):
@@ -65,7 +39,7 @@ class ResidualConnection(BaseLayer):
         self.dropout = Dropout(p_drop)
         self.params += layer.params
         self.grads += layer.grads
-    
+
     def forward(self, *args, **kwargs):
         train_flg = kwargs.get('train_flg', True)
         y: np.ndarray = self.layer.forward(*args)
