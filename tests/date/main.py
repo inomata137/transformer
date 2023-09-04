@@ -10,12 +10,6 @@ char_to_id, id_to_char = get_vocab()
 vocab_size = len(char_to_id)
 '''number of unique characters'''
 
-# 訓練データを減らす
-x_train = x_train[:1000]
-t_train = t_train[:1000]
-x_test = x_train[:50]
-t_test = t_train[:50]
-
 np.random.seed(seed)
 
 model = Transformer(d_m, h, d_ff, vocab_size, enc_rep, dec_rep, p_drop_embed,
@@ -51,3 +45,8 @@ for epoch in range(max_epoch):
     print(f'val acc {round(acc * 100, 3)}%')
 
 print(acc_list)
+
+
+if input('save?(yes/no): ') == 'yes':
+    filename = input('filename: ') or None
+    model.save_params(filename)

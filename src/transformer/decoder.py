@@ -13,26 +13,28 @@ class Decoder(BaseLayer):
         self.layers = [[
             ResidualConnection(MultiHeadSelfAttention(d_m, h, True, rn), p_drop, norm_positionwise),
             ResidualConnection(MultiHeadCrossAttention(d_m, h, rn), p_drop, norm_positionwise),
-            ResidualConnection(PositionWiseFfn(d_m, d_ff, 0.1, 0.1, rn), p_drop, norm_positionwise)
+            # ResidualConnection(PositionWiseFfn(d_m, d_ff, 0.1, 0.1, rn), p_drop, norm_positionwise)
         ] for _ in range(repeat_num)]
         for layer in self.layers:
             for sublayer in layer:
                 self.params += sublayer.params
                 self.grads += sublayer.grads
-        
+
     def forward(self, x: np.ndarray, hs: np.ndarray, train_flg=True):
         for layer in self.layers:
-            sa, at, pf = layer
+            # sa, at, pf = layer
+            sa, at = layer
             x = sa.forward(x, train_flg=train_flg)
             x = at.forward(x, hs, train_flg=train_flg)
-            x = pf.forward(x, train_flg=train_flg)
+            # x = pf.forward(x, train_flg=train_flg)
         return x
-    
+
     def backward(self, dx: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         dhs = 0.
         for layer in reversed(self.layers):
-            sa, at, pf = layer
-            dx = pf.backward(dx)
+            # sa, at, pf = layer
+            sa, at = layer
+            # dx = pf.backward(dx)
             dx, _dhs = at.backward(dx)
             dx = sa.backward(dx)
             dhs += _dhs

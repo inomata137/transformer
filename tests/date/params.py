@@ -14,11 +14,11 @@ max_epoch = 30
 '''maximum epochs'''
 p_drop_embed = 0.05
 '''dropout ratio at embedding'''
-p_drop_sublayer = 0.25
+p_drop_sublayer = 0.1
 '''dropout ratio at each sublayer'''
 pe_interval = 30
 '''positional encoding interval'''
-lr = 0.002
+lr = 0.005
 '''initial learning rate'''
 max_grad = 10.0
 '''maximum gradient'''
