@@ -7,10 +7,10 @@ from .np import np, to_numpy, to_cupy
 class BaseModel(BaseLayer):
     def __init__(self) -> None:
         super().__init__()
-    
+
     def generate(self):
         raise NotImplementedError
-    
+
     def save_params(self, file_name=None):
         if file_name is None:
             file_name = self.__class__.__name__ + '.pkl'
@@ -21,7 +21,7 @@ class BaseModel(BaseLayer):
 
         with open(file_name, 'wb') as f:
             pickle.dump(params, f)
-    
+
     def load_params(self, file_name=None):
         if file_name is None:
             file_name = self.__class__.__name__ + '.pkl'

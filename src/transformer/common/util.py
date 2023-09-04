@@ -52,5 +52,5 @@ def eval_seq2seq(model, questions: np.ndarray,
         print('---')
 
     correct_count = len(list(filter(lambda x: x[0] == x[1], zip(answers, guesses))))
-    
+
     return correct_count

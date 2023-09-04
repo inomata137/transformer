@@ -26,7 +26,7 @@ class Transformer(BaseModel):
 
         self.params += self.embed.params + self.enc.params + self.dec.params + self.matmul.params
         self.grads += self.embed.grads + self.enc.grads + self.dec.grads + self.matmul.grads
-    
+
     def forward(self, x_enc: np.ndarray, x_dec: np.ndarray):
         '''
         x_enc: N x n
@@ -55,7 +55,7 @@ class Transformer(BaseModel):
             y.argmax(-1) == np.roll(np.asarray(x_dec), -1, 1)
         ).all(axis=-1).sum()
         return loss, correct_count.item()
-    
+
     def backward(self, dout=None):
         N = self.N
         m = self.m
@@ -69,14 +69,14 @@ class Transformer(BaseModel):
         dx = np.hstack((dx_enc, dx_dec))
         self.embed.backward(dx)
         return None
-    
+
     def generate(self, x_enc: np.ndarray, start_id: int, length: int):
         '''
         x_enc: N x n array[int]
         '''
         N, n = x_enc.shape
         x_dec = np.full((N, length), start_id, dtype=int)
-        
+
         for i in range(length - 1):
             x_encoded = self.embed.forward(np.hstack((x_enc, x_dec)))
             x_enc_encoded = x_encoded[:, :n, :]

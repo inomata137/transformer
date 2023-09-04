@@ -13,12 +13,12 @@ class PositionWiseFfn(BaseLayer):
         for layer in self.layers:
             self.params += layer.params
             self.grads += layer.grads
-    
+
     def forward(self, x: np.ndarray):
         for layer in self.layers:
             x = layer.forward(x)
         return x
-    
+
     def backward(self, dout: np.ndarray):
         for layer in reversed(self.layers):
             dout = layer.backward(dout)

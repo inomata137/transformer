@@ -30,15 +30,14 @@ class AttentionHead(BaseLayer):
         self.d_k = d_k
         self.mask = mask
         self.attention_weight = None
-    
+
     def forward(self, x_q: np.ndarray, x_kv: np.ndarray):
         q = self.wq.forward(x_q)
         k = self.wk.forward(x_kv)
         v = self.wv.forward(x_kv)
         x = self.matmul1.forward(q, k.swapaxes(-2, -1)) / np.sqrt(self.d_k)
         if self.mask:
-            r, c = x.shape[-2:]
-            x += np.log(np.tri(r, c, 0))
+            x -= np.triu(np.full_like(x, np.inf), 1)
         x = self.softmax.forward(x)
         self.attention_weight = x.copy()
         x = self.matmul2.forward(x, v)
@@ -48,8 +47,7 @@ class AttentionHead(BaseLayer):
         dx, dv = self.matmul2.backward(dout)
         dx = self.softmax.backward(dx)
         if self.mask:
-            r, c = dx.shape[-2:]
-            dx *= np.tri(r, c, 0)
+            dx = np.tril(dx)
         dq, dkT = self.matmul1.backward(dx / np.sqrt(self.d_k))
         dx_q = self.wq.backward(dq)
         dx_k = self.wk.backward(dkT.swapaxes(-2, -1))
@@ -72,7 +70,7 @@ class MultiHeadAttention(BaseLayer):
         self.grads += self.wo.grads
         self.h = h
         self.d_v = d_v
-    
+
     def forward(self, x_q: np.ndarray, x_kv: np.ndarray):
         '''
         x: (N, n, d_m)
@@ -88,7 +86,7 @@ class MultiHeadAttention(BaseLayer):
         x = np.dstack(result)
         x = self.wo.forward(x)
         return x
-    
+
     def backward(self, dout: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         '''
         dout: (N, n, d_m)
@@ -117,7 +115,7 @@ class MultiHeadSelfAttention(BaseLayer):
         self.mha = MultiHeadAttention(d_m, h, mask, rn)
         self.params += self.mha.params
         self.grads += self.mha.grads
-    
+
     def forward(self, x: np.ndarray):
         return self.mha.forward(x, x)
 
