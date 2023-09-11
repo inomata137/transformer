@@ -100,7 +100,7 @@ class CircuitSimulator(BaseModel):
     def backward(self, dout=1.):
         a = self.a
         y = self.y
-        f = self.f
+        f = self.f - self.f.mean()
         batch, n = a.shape
 
         t = np.zeros((batch * n, self.m))

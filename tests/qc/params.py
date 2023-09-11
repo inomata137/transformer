@@ -5,7 +5,7 @@ m = 4
 '''number of POVM elements'''
 Nq = 2
 '''number of qubits'''
-Ns = 4096
+Ns = 2**9
 '''number of samples'''
 seed = 0
 '''random seed for parameter initialization'''
@@ -17,5 +17,7 @@ d_ff = 8
 '''size of hidden layer of Position-wise FFN'''
 lr = 0.01
 '''initial learning rate'''
-max_epoch = 50
+max_grad = 10.
+'''maximum gradient'''
+max_epoch = 800
 '''maximum epoch'''
