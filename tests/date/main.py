@@ -13,7 +13,7 @@ vocab_size = len(char_to_id)
 np.random.seed(seed)
 
 model = Transformer(d_m, h, d_ff, vocab_size, enc_rep, dec_rep, p_drop_embed,
-                    p_drop_sublayer, pe_interval, np.random.randn)
+                    p_drop_sublayer, pe_interval, True, np.random.randn)
 
 optimizer = Adam(lr)
 trainer = Trainer(model, optimizer)

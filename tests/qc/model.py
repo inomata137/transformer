@@ -12,7 +12,7 @@ class CircuitSimulator(BaseModel):
         self.embed = Embedding(m + 1, d_m, rn) # +1はinit用
         '''0, 1, ..., m-1は測定値、mはinit'''
         self.layers: list[BaseLayer] = [
-            ResidualConnection(MultiHeadSelfAttention(d_m, h, True, rn), 0., True),
+            # ResidualConnection(MultiHeadSelfAttention(d_m, h, True, rn), 0., True),
             ResidualConnection(PositionWiseFfn(d_m, d_ff, 0.1, 0.1, rn), 0., True),
             MatMul((d_m, m), rn),
         ]
